@@ -119,4 +119,21 @@ public class ZzleepAudio
 	public void setSonando(int sonando) {
 		this.sonando = sonando;
 	}
+
+	@Override
+	public String toString() {
+		return "ZzleepAudio{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", icon='" + icon + '\'' +
+				", description='" + description + '\'' +
+				", status=" + status +
+				", price=" + price +
+				", discount=" + discount +
+				", points=" + points +
+				", preview='" + preview + '\'' +
+				", company_id=" + company_id +
+				", sonando=" + sonando +
+				'}';
+	}
 }

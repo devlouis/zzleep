@@ -67,6 +67,8 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -77,7 +79,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.google.firebase.auth.GetTokenResult;
 import com.gowil.zzleep.R;
+import com.gowil.zzleep.app.core.utils.LogUtils;
 import com.gowil.zzleep.utils.ApiDelete;
 import com.gowil.zzleep.utils.ApiImg;
 import com.gowil.zzleep.utils.ApiPost;
@@ -197,6 +201,23 @@ public class MainActivity extends FragmentActivity implements
             reloadData();
             return;
         }
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        user.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            String idToken = task.getResult().getToken();
+                            new LogUtils().v(TAG, " getIdToken:: " + idToken);
+                            // Send token to your backend via HTTPS
+                            // ...
+                        } else {
+                            // Handle error -> task.getException();
+
+                        }
+                    }
+                });
+
         int posicion = data.getInt("posicion");
         startAlarm();
         destinies.get(posicion).setStatus(0);
@@ -205,6 +226,21 @@ public class MainActivity extends FragmentActivity implements
     }
     void reloadData(){
         user = FirebaseAuth.getInstance().getCurrentUser();
+        user.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            String idToken = task.getResult().getToken();
+                            new LogUtils().v(TAG, " getIdToken:: " + idToken);
+                            // Send token to your backend via HTTPS
+                            // ...
+                        } else {
+                            // Handle error -> task.getException();
+
+                        }
+                    }
+                });
+
         //Verificar sesión
         if (user != null) {
             //String idToken = task.getResult().getToken();

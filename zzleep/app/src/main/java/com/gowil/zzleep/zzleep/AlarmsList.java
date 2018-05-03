@@ -12,6 +12,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -19,11 +20,14 @@ import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
-
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,17 +36,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.gowil.zzleep.R;
+import com.gowil.zzleep.app.core.utils.LogUtils;
+import com.gowil.zzleep.domain.model.ProductsAudio;
+import com.gowil.zzleep.domain.model.ProductsVideo;
+import com.gowil.zzleep.presenter.ProductsPresenter;
 import com.gowil.zzleep.utils.DownloadTask;
 import com.gowil.zzleep.utils.JsonTask;
+import com.gowil.zzleep.view.Productsview;
 import com.gowil.zzleep.zzleep.adapters.ScreenSlidePagerAdapter;
 import com.gowil.zzleep.zzleep.adapters.ZzleepAlarm;
 import com.gowil.zzleep.zzleep.adapters.ZzleepAlarmAdapter;
 import com.gowil.zzleep.zzleep.utils.Callback;
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+import com.gowil.zzleep.zzleep.utils.PlayerManager;
 
-public class AlarmsList extends AppCompatActivity implements View.OnClickListener,AdapterView.OnItemClickListener
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+/**
+ * Main Activity for the IMA plugin demo. {@link ExoPlayer} objects are created by
+ * {@link PlayerManager}, which this class instantiates.
+ */
+public class AlarmsList extends AppCompatActivity implements View.OnClickListener,AdapterView.OnItemClickListener, Productsview
 {
 	View mViewGroup;
 	VideoView vdoView;
@@ -56,6 +71,11 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	public String ApiPath = "http://app.zzleep.me/";
 	private MediaPlayer mp = null;
 	private FirebaseUser user = null;
+
+	private PlayerView playerView;
+	private PlayerManager player;
+	private ProductsPresenter productsPresenter;
+
 	@Override
 	protected void attachBaseContext(Context newBase)
 	{
@@ -66,15 +86,38 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_alarms_list);
+		playerView = findViewById(R.id.player_view);
 		mViewGroup = findViewById(R.id.viewsContainer);
 		vdoView = findViewById(R.id.videoViewRec);
 		vdoView.setMediaController(new MediaController(this));
+
+
 		Bundle data = getIntent().getExtras();
 		if(data!=null)
 			optionSelected =data.getString("opt");
 		mViewGroup.setVisibility(View.GONE);
 		init();
 	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		player.reset();
+	}
+
+	@Override
+	public void onDestroy() {
+		//player.release();
+		super.onDestroy();
+	}
+
+
 	@Override
 	protected void onStop()
 	{
@@ -85,6 +128,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 
 	private void init()
 	{
+		player = new PlayerManager(this);
 		spinner = findViewById(R.id.progressBar1);
 		spinner.setVisibility(View.VISIBLE);
 		findViewById(R.id.btnBack).setOnClickListener(this);
@@ -101,17 +145,18 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 		mViewPager.setAdapter(mPagerAdapter);
 		TabLayout tabLayout = findViewById(R.id.tabDots);
 		tabLayout.setupWithViewPager(mViewPager, true);
+
+		productsPresenter = new ProductsPresenter();
+		productsPresenter.attachedView(this);
+		productsPresenter.getAlarmVideos();
 	}
 
-	@Override
-	public void onBackPressed() {
-		if(vdoView.getVisibility()==View.VISIBLE || spinner.getVisibility()==View.VISIBLE){
-			vdoView.setVisibility(View.INVISIBLE);
-			spinner.setVisibility(View.INVISIBLE);
-		}else {
-			super.onBackPressed();
-		}
+
+	void iniciarPreview(String videoURL){
+		playerView.setVisibility(View.VISIBLE);
+		player.init(this, playerView, videoURL);
 	}
+
 	void showItemUsageDialog(final AdapterView<?> parent, final int position) {
 		Integer status=alarmSelected.status;
 		String option="Comprar";
@@ -128,8 +173,10 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 		builder.setPositiveButton("Vista previa",new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface dialog, int id){
 				try {
-					previewAlarm(alarmSelected.name,alarmSelected.video);
-				} catch (IOException e) {
+					//previewAlarm(alarmSelected.name,alarmSelected.video);
+					iniciarPreview(alarmSelected.video);
+
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				mViewGroup.setVisibility(View.VISIBLE);
@@ -155,15 +202,41 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	@Override
 	public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
 		alarmSelected= (ZzleepAlarm) parent.getAdapter().getItem(position);
-		DownloadTask downloadTask = new DownloadTask(this);
+		Toast.makeText(this,"aaaaa", Toast.LENGTH_LONG);
+
+		showItemUsageDialog(parent,position);
+		/**
+		 * descarga video audio
+ 		 */
+		/*DownloadTask downloadTask = new DownloadTask(this);
 		downloadTask.setCallback(new Callback(){
 			@Override
 			public void onFinish() {
 				showItemUsageDialog(parent,position);
 			}
 		});
-		downloadTask.execute(alarmSelected.video, "preview_" + alarmSelected.name.replace(" ", "_"));
+		downloadTask.execute(alarmSelected.video, "preview_" + alarmSelected.name.replace(" ", "_"));*/
 	}
+
+	@Override
+	public void onBackPressed() {
+
+	/*	if(vdoView.getVisibility()==View.VISIBLE || spinner.getVisibility()==View.VISIBLE){
+			vdoView.setVisibility(View.INVISIBLE);
+			spinner.setVisibility(View.INVISIBLE);
+		}else {
+			super.onBackPressed();
+		}*/
+
+		if (playerView.getVisibility() == View.VISIBLE){
+			playerView.setVisibility(View.GONE);
+			player.stop();
+
+		} else {
+			super.onBackPressed();
+		}
+	}
+
 	private void finishWithResult()
 	{
 		Intent resultData = new Intent();
@@ -196,7 +269,8 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 				@Override
 				public void onPrepared(MediaPlayer mediaPlayer) {
 					spinner.setVisibility(View.INVISIBLE);
-					mediaPlayer.start();
+					//mediaPlayer.start();
+
 				}
 			});
 			vdoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -257,6 +331,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 			auxAlarm.id=id;
 			arrayList.add(auxAlarm);
 		}
+		Log.v(" ALARMA-VIDEOS:: ", arrayList.toString());
 		alarmAdapter = new ZzleepAlarmAdapter(this,0, arrayList);
 		//Asociamos el adaptador a la vista.
 		if (arrayList.size()==0 && data.contains("ERROR")){
@@ -297,5 +372,36 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 				//Write your code if there's no result
 			}
 		}
+	}
+
+	@Override
+	public void getalarmVideos(@NotNull List<ProductsVideo> productsVideos) {
+		new LogUtils().v("getalarmVideo", productsVideos.toString());
+	}
+
+	@Override
+	public void getalarmAudio(@NotNull ProductsAudio productsAudio) {
+
+	}
+
+	@Override
+	public void showLoading() {
+
+	}
+
+	@Override
+	public void hideLoading() {
+
+	}
+
+	@Override
+	public void showMessageError(@NotNull String message, @Nullable Integer type) {
+
+	}
+
+	@NotNull
+	@Override
+	public Context getContext() {
+		return this;
 	}
 }

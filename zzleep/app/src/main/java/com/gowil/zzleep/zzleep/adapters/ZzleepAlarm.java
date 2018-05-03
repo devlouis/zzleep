@@ -27,4 +27,17 @@ public class ZzleepAlarm
 		this.audio = audio;
 		this.id=-1;
 	}
+
+	@Override
+	public String toString() {
+		return "ZzleepAlarm{" +
+				"name='" + name + '\'' +
+				", icon='" + icon + '\'' +
+				", status=" + status +
+				", price=" + price +
+				", video='" + video + '\'' +
+				", audio='" + audio + '\'' +
+				", id=" + id +
+				'}';
+	}
 }

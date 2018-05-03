@@ -12,6 +12,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -78,6 +79,7 @@ public class AudioActivity extends AppCompatActivity
 	}
 	public void obtenerAudiosArray(String data) throws JSONException {
 		audios = new ArrayList<>();
+		Log.v("AUDIOS::: " , audios.toString());
 
 		JSONObject aux= new JSONObject(data);
 		JSONArray alarmas = aux.getJSONArray("data");

@@ -45,8 +45,10 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+       <!-- android:name=".zzleep.MainActivity"-->
         <activity
             android:name=".zzleep.MainActivity"
+
             android:label="@string/title_activity_main"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">

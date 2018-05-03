@@ -8,6 +8,57 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:978332821447:android:01f52cbe8ed04f4b",
+        "android_client_info": {
+          "package_name": "com.gowil.zzleep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978332821447-691i43esn1nic74d0lpi8pofhpheq9gr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gowil.zzleep",
+            "certificate_hash": "e3bdd038633bce27fa6469f1e220c67dbea97dfc"
+          }
+        },
+        {
+          "client_id": "978332821447-uef6vqrgobi3icf5375uu7e7mgldpdsa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOAqRnmmAxYihceNcNVj_ib_gksDp4y80"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978332821447-39dls0mlcjja3u8kaeqn6ae0cc5hhh3p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "geekadvice.zzleep-"
+              }
+            },
+            {
+              "client_id": "978332821447-uef6vqrgobi3icf5375uu7e7mgldpdsa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:978332821447:android:defab2d13dc24651",
         "android_client_info": {
           "package_name": "pe.geekadvice.zzleep"

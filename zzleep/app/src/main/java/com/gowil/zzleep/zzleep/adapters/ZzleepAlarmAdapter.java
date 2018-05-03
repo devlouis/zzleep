@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -73,7 +74,6 @@ public class ZzleepAlarmAdapter extends ArrayAdapter<ZzleepAlarm>
 				alarmPrice.setText("Comprado");
 				break;
 		}
-
 		//tvHome.setText(audio.address);
 		// Return the completed view to render on screen
 
