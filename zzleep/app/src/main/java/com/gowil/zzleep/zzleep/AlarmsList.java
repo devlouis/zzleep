@@ -40,6 +40,7 @@ import java.util.List;
 
 import com.gowil.zzleep.R;
 import com.gowil.zzleep.app.core.utils.LogUtils;
+import com.gowil.zzleep.app.ui.activity.CulqiActivity;
 import com.gowil.zzleep.domain.model.ProductsAudio;
 import com.gowil.zzleep.domain.model.ProductsVideo;
 import com.gowil.zzleep.presenter.ProductsPresenter;
@@ -63,6 +64,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	VideoView vdoView;
 	ArrayList<ZzleepAlarm> arrayList;
 	ZzleepAlarm alarmSelected;
+	ProductsVideo productsVideo;
 	String optionSelected;
 	ZzleepAlarmAdapter alarmAdapter;
 	ProgressBar spinner;
@@ -158,12 +160,12 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	}
 
 	void showItemUsageDialog(final AdapterView<?> parent, final int position) {
-		Integer status=alarmSelected.status;
+		Integer status=productsVideo.is_owned();
 		String option="Comprar";
 		SharedPreferences prefs = AlarmsList.this.getSharedPreferences(
 				"com.gowil.zzleep", Context.MODE_PRIVATE);
-		final boolean bought = prefs.getBoolean(""+alarmSelected.id,false);
-		if(status==1 || alarmSelected.price.doubleValue()==0.0||bought)
+		final boolean bought = prefs.getBoolean(""+productsVideo.getId(),false);
+		if(status==1 || Double.parseDouble(productsVideo.getAmount())==0.0||bought)
 		{
 			option="Usar";
 		}
@@ -174,7 +176,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 			public void onClick(DialogInterface dialog, int id){
 				try {
 					//previewAlarm(alarmSelected.name,alarmSelected.video);
-					iniciarPreview(alarmSelected.video);
+					iniciarPreview(productsVideo.getPreview());
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -185,7 +187,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 		});
 		builder.setNegativeButton(option,new DialogInterface.OnClickListener(){
 			public void onClick(DialogInterface dialog, int id){
-				if(alarmSelected.status== 1 || alarmSelected.price.equals(0.0)||bought)
+				if(productsVideo.is_owned()== 1 || productsVideo.getAmount().equals(0.0)||bought)
 				{
 					finishWithResult();
 				}
@@ -201,7 +203,8 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	}
 	@Override
 	public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
-		alarmSelected= (ZzleepAlarm) parent.getAdapter().getItem(position);
+		//alarmSelected= (ZzleepAlarm) parent.getAdapter().getItem(position);
+		productsVideo= (ProductsVideo) parent.getAdapter().getItem(position);
 		Toast.makeText(this,"aaaaa", Toast.LENGTH_LONG);
 
 		showItemUsageDialog(parent,position);
@@ -332,29 +335,30 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 			arrayList.add(auxAlarm);
 		}
 		Log.v(" ALARMA-VIDEOS:: ", arrayList.toString());
-		alarmAdapter = new ZzleepAlarmAdapter(this,0, arrayList);
+		//todo alarmAdapter = new ZzleepAlarmAdapter(this,0, arrayList);
 		//Asociamos el adaptador a la vista.
-		if (arrayList.size()==0 && data.contains("ERROR")){
+		/*if (arrayList.size()==0 && data.contains("ERROR")){
 			Toast.makeText(this, "Error:" + data, Toast.LENGTH_LONG).show();
 		}
 		GridView lv = findViewById(R.id.gridview);
 		lv.setOnItemClickListener(this);
 		lv.setAdapter(alarmAdapter);
 		findViewById(R.id.btnStop).setOnClickListener(this);
-		spinner.setVisibility(View.GONE);
+		spinner.setVisibility(View.GONE);*/
 	}
 	public void iniciarCompra(){
-		Intent alarmScreen = new Intent(this, PaymentActivity.class);
-		alarmScreen.putExtra("nombre", alarmSelected.name);
-		alarmScreen.putExtra("precio", alarmSelected.price.toString());
+		Intent alarmScreen = new Intent(this, CulqiActivity.class);
+		alarmScreen.putExtra("nombre", productsVideo.getName());
+		alarmScreen.putExtra("precio", productsVideo.getAmount().toString());
 		alarmScreen.putExtra("userid",user.getUid());
+		alarmScreen.putExtra("email",user.getEmail());
 		String temp= FirebaseInstanceId.getInstance().getToken();
 		alarmScreen.putExtra("userToken",temp);
-		if(alarmSelected.id==-1){
+		if(productsVideo.getId()==-1){
 			Toast.makeText(this, "Error de ID", Toast.LENGTH_LONG).show();
 			return;
 		}
-		alarmScreen.putExtra("id",alarmSelected.id);
+		alarmScreen.putExtra("id",productsVideo.getId());
 		startActivityForResult(alarmScreen,1);
 	}
 	@Override
@@ -377,6 +381,13 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	@Override
 	public void getalarmVideos(@NotNull List<ProductsVideo> productsVideos) {
 		new LogUtils().v("getalarmVideo", productsVideos.toString());
+		alarmAdapter = new ZzleepAlarmAdapter(this,0, productsVideos);
+		GridView lv = findViewById(R.id.gridview);
+		lv.setOnItemClickListener(this);
+		lv.setAdapter(alarmAdapter);
+		findViewById(R.id.btnStop).setOnClickListener(this);
+		spinner.setVisibility(View.GONE);
+
 	}
 
 	@Override

@@ -15,13 +15,14 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import com.gowil.zzleep.R;
+import com.gowil.zzleep.domain.model.ProductsVideo;
 import com.gowil.zzleep.zzleep.AlarmsList;
 
 /**
  * Created by gerson on 18/12/16.
  */
 
-public class ZzleepAlarmAdapter extends ArrayAdapter<ZzleepAlarm>
+public class ZzleepAlarmAdapter extends ArrayAdapter<ProductsVideo>
 {
 	ImageView alarmIcon;
 	TextView alarmName;
@@ -29,7 +30,7 @@ public class ZzleepAlarmAdapter extends ArrayAdapter<ZzleepAlarm>
 	public String audio,video;
 	public Integer status;
 	private AlarmsList audioContext;
-	public ZzleepAlarmAdapter(AlarmsList context, int resource, List<ZzleepAlarm> objects)
+	public ZzleepAlarmAdapter(AlarmsList context, int resource,  List<ProductsVideo> objects)
 	{
 		super(context, resource, objects);
 		this.audioContext=context;
@@ -38,7 +39,7 @@ public class ZzleepAlarmAdapter extends ArrayAdapter<ZzleepAlarm>
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// Get the data item for this position
-		ZzleepAlarm alarm = getItem(position);
+		ProductsVideo alarm = getItem(position);
 		// Check if an existing view is being reused, otherwise inflate the view
 		if (convertView == null) {
 			convertView = LayoutInflater.from(getContext()).inflate(R.layout.alarm_item, parent, false);
@@ -51,23 +52,23 @@ public class ZzleepAlarmAdapter extends ArrayAdapter<ZzleepAlarm>
 
 		// Populate the data into the template view using the data object
 		//int resourceId = convertView.getResources().getIdentifier(alarm.icon, "mipmap", "pe.geekadvice.zzleep");
-		audio =alarm.audio;
-		video= alarm.video;
-		status= alarm.status;
-		alarmName.setText(alarm.name);
+		audio = "";
+		video= alarm.getPreview();
+		status= alarm.is_owned();
+		alarmName.setText(alarm.getName());
 
-		Glide.with(audioContext).load(alarm.icon).into(alarmIcon);
+		Glide.with(audioContext).load(alarm.getImage()).into(alarmIcon);
 		SharedPreferences prefs = audioContext.getSharedPreferences(
 				"com.gowil.zzleep", Context.MODE_PRIVATE);
-		final boolean bought = prefs.getBoolean(""+alarm.id,false);
+		final boolean bought = prefs.getBoolean(""+alarm.getId(),false);
 		if(bought) status=1;
 		switch (status)
 		{
 			case 0://gratis
-				if(alarm.price.intValue() == 0) {
+				if(Double.parseDouble(alarm.getAmount()) == 0) {
 					alarmPrice.setText("Gratis");
 				}else {
-					alarmPrice.setText("S./"+alarm.price.toString());
+					alarmPrice.setText("S./"+alarm.getAmount().toString());
 				}
 				break;
 			case 1://comprado

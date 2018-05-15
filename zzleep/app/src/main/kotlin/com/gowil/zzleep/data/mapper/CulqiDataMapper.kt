@@ -1,12 +1,17 @@
 package com.gowil.zzleep.data.mapper
 
-import com.gowil.zzleep.domain.model.CulqiCreateToken
 import com.gowil.zzleep.data.entity.response.CulqiCreateTokenResponse
-import com.gowil.zzleep.domain.model.CulqiIin
 import com.gowil.zzleep.data.entity.CulqiIinEntity
-
-
-
+import android.support.v4.view.MotionEventCompat.getSource
+import android.support.v4.view.accessibility.AccessibilityRecordCompat.setSource
+import com.gowil.zzleep.data.entity.response.CulqiChargesResponse
+import android.support.v4.view.MotionEventCompat.getSource
+import android.support.v4.view.accessibility.AccessibilityRecordCompat.setSource
+import com.gowil.zzleep.data.entity.CulqiSourceEntity
+import com.gowil.zzleep.data.entity.MetadataEntity
+import com.gowil.zzleep.data.entity.CulqiSourceCardEntity
+import com.gowil.zzleep.data.entity.response.CreateOrderResponse
+import com.gowil.zzleep.domain.model.*
 
 
 class CulqiDataMapper {
@@ -51,5 +56,102 @@ class CulqiDataMapper {
         }
 
         return culqiIin
+    }
+
+    fun culqiChargesTransWalkingS(response: CulqiChargesResponse): CulqiCharges? {
+        var culqiCharges: CulqiCharges? = null
+        try {
+            culqiCharges = CulqiCharges()
+            culqiCharges.duplicated = response.duplicated
+            culqiCharges.`object` = response.`object`
+            culqiCharges.id = response.id
+            culqiCharges.amount = response.amount
+            culqiCharges.currency = response.currency
+            culqiCharges.email = response.email
+            culqiCharges.description = response.description
+            culqiCharges.source = culqiSourceTransWalkingS(response.source!!)
+            culqiCharges.date = response.date
+            culqiCharges.reference_code = response.reference_code
+            culqiCharges.net_amount = response.net_amount
+            culqiCharges.response_code = response.response_code
+            culqiCharges.merchant_message = if (response.merchant_message == null) "" else response.merchant_message
+            culqiCharges.user_message = if (response.user_message == null) "" else response.user_message
+            culqiCharges.device_ip = response.device_ip
+            culqiCharges.device_country = response.device_country
+            culqiCharges.product = response.product
+            culqiCharges.state = response.state
+            culqiCharges.metadata = metadataTransWalkingS(response.metadata!!)
+            culqiCharges.type = response.type
+            culqiCharges.param = response.param
+            culqiCharges.toString = response.toString()
+        } catch (e: Exception) {
+
+        }
+
+        return culqiCharges
+    }
+
+    fun culqiSourceTransWalkingS(entity: CulqiSourceEntity): CulqiSource? {
+        var culqiSource: CulqiSource? = null
+        try {
+            culqiSource = CulqiSource()
+            culqiSource.`object` = entity.`object`
+            culqiSource.id = entity.id
+            culqiSource.creation_date = entity.creation_date
+            culqiSource.source = culqiSourceCardTransWalkingS(entity.source!!)
+            culqiSource.iin = culqiIinTransWalkingS(entity.iin!!)
+        } catch (e: Exception) {
+
+        }
+
+        return culqiSource
+    }
+
+    fun metadataTransWalkingS(metadataEntity: MetadataEntity): com.gowil.zzleep.domain.model.Metadata? {
+        val metadata: com.gowil.zzleep.domain.model.Metadata? = null
+        try {
+            metadata!!.id_orders = metadataEntity.id_orders
+            metadata.id_users = metadataEntity.id_users
+        } catch (e: Exception) {
+
+        }
+
+        return metadata
+    }
+
+    fun culqiSourceCardTransWalkingS(entity: CulqiSourceCardEntity): CulqiSourceCard? {
+        var culqiSourceCard: CulqiSourceCard? = null
+
+        try {
+            culqiSourceCard = CulqiSourceCard()
+            culqiSourceCard.`object` = entity.`object`
+            culqiSourceCard.id = entity.id
+            culqiSourceCard.type = entity.type
+            culqiSourceCard.creation_date = entity.creation_date
+            culqiSourceCard.email = entity.email
+            culqiSourceCard.card_number = entity.card_number
+            culqiSourceCard.last_four = entity.last_four
+            culqiSourceCard.active = entity.active
+            culqiSourceCard.iin = culqiIinTransWalkingS(entity.iin!!)
+        } catch (e: Exception) {
+
+        }
+
+        return culqiSourceCard
+    }
+
+    fun createOrderTRansWalkingS(response: CreateOrderResponse) : CreateOrder{
+        var createOrder: CreateOrder? = null
+        try {
+            createOrder = CreateOrder()
+            createOrder.amount = response.data!!.amount
+            createOrder.order_id = response.data!!.order_id
+            createOrder.order_status = response.data!!.order_status
+            createOrder.user_id = response.data!!.user_id
+
+        } catch (e : Exception) {
+
+        }
+        return createOrder!!
     }
 }

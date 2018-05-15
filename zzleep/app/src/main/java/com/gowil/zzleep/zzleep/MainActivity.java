@@ -208,7 +208,9 @@ public class MainActivity extends FragmentActivity implements
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             String idToken = task.getResult().getToken();
+                            String uid = task.getResult().getToken();
                             new LogUtils().v(TAG, " getIdToken:: " + idToken);
+
                             // Send token to your backend via HTTPS
                             // ...
                         } else {
@@ -217,6 +219,7 @@ public class MainActivity extends FragmentActivity implements
                         }
                     }
                 });
+
 
         int posicion = data.getInt("posicion");
         startAlarm();
@@ -226,20 +229,23 @@ public class MainActivity extends FragmentActivity implements
     }
     void reloadData(){
         user = FirebaseAuth.getInstance().getCurrentUser();
-        user.getIdToken(true)
-                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
-                        if (task.isSuccessful()) {
-                            String idToken = task.getResult().getToken();
-                            new LogUtils().v(TAG, " getIdToken:: " + idToken);
-                            // Send token to your backend via HTTPS
-                            // ...
-                        } else {
-                            // Handle error -> task.getException();
+        if (user != null){
+            user.getIdToken(true)
+                    .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                        public void onComplete(@NonNull Task<GetTokenResult> task) {
+                            if (task.isSuccessful()) {
+                                String idToken = task.getResult().getToken();
+                                new LogUtils().v(TAG, " getIdToken:: " + idToken);
+                                // Send token to your backend via HTTPS
+                                // ...
+                            } else {
+                                // Handle error -> task.getException();
 
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
 
         //Verificar sesión
         if (user != null) {

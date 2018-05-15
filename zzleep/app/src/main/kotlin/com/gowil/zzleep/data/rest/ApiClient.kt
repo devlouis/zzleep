@@ -1,8 +1,7 @@
 package com.gowil.zzleep.data.rest
 
 import android.util.Log
-import com.gowil.zzleep.data.entity.response.CulqiCreateTokenResponse
-import com.gowil.zzleep.data.entity.response.ProductsVideoResponse
+import com.gowil.zzleep.data.entity.response.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,8 +27,8 @@ class ApiClient {
      * CULQI DEV
      **/
 
-    var CULQI_KEY_PUBLIC = "Bearer pk_test_KKrFuZHtlqZdjPT7";
-    var CULQI_KEY_PRIVATE = "Bearer sk_test_jqOmhclYvoLydHbK";
+    var CULQI_KEY_PUBLIC = "Bearer pk_test_1vbijEOSfbHRGkjg"
+    var CULQI_KEY_PRIVATE = "Bearer sk_test_xxAAJZKgnyMg0F8P"
 
 
     val HOST_CULQI_V2 = "https://api.culqi.com/v2/"
@@ -51,7 +50,7 @@ class ApiClient {
         }
         val retrofit = Retrofit.Builder()
                 .baseUrl(HOST_CULQI_V2)
-                .client(getTokenClientInterceptor(header))
+                .client(getCulqiTokenInterceptor(header))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         culqiV2Interface = retrofit.create(CulqiV2Interface::class.java)
@@ -79,9 +78,9 @@ class ApiClient {
         @POST("tokens")
         fun createToken(@Body raw: Any): Call<CulqiCreateTokenResponse>
 
-        /*@POST("charges")
+        @POST("charges")
         fun createCharges(@Body raw: Any): Call<CulqiChargesResponse>
-
+/*
         @POST("customers")
         fun createCustomers(@Body raw: Any): Call<CulqiCreateCustomerResponse>
 
@@ -93,6 +92,12 @@ class ApiClient {
     interface ZzleepTokenInterface {
         @GET("/product/1")
         fun getVideo(): Call<ProductsVideoResponse>
+
+        @POST("/order")
+        fun setOrder(@Body raw: Any): Call<CreateOrderResponse>
+
+        @POST("/user")
+        fun setUser(@Body raw: Any): Call<UserRegisterResponse>
     }
 
 
@@ -120,6 +125,38 @@ class ApiClient {
             val requestBuilder = original.newBuilder()
                     .header("Content-Type", "application/json")
                     .header("x-access-token", token)
+                    .method(original.method(), original.body())
+
+            val request = requestBuilder.build()
+
+            val response = chain.proceed(request)
+            //return chain.proceed(request);
+
+            val responseBody = response.body()
+            val contentLength: Int = responseBody!!.contentLength().toInt()
+            val bodySize = if (contentLength != -1) contentLength.toString() + "-byte" else "unknown-length"
+            Log.v(TAG, "<-:::- " + response.code() + ' ' + response.message() + ' '
+                    + response.request().url() + " (" + bodySize + " body - " + response.protocol() + ')')
+
+            response
+        })
+
+        return builder.build()
+    }
+
+    fun getCulqiTokenInterceptor(token: String): OkHttpClient {
+        val builder = OkHttpClient.Builder()
+        builder.readTimeout(15, TimeUnit.SECONDS);
+        builder.writeTimeout(15, TimeUnit.SECONDS);
+        builder.connectTimeout(15, TimeUnit.SECONDS);
+
+        //builder.interceptors().add(new LoggingInterceptor());
+        builder.interceptors().add(Interceptor { chain ->
+            val original = chain.request()
+            // Request customization: add request headers
+            val requestBuilder = original.newBuilder()
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", token)
                     .method(original.method(), original.body())
 
             val request = requestBuilder.build()

@@ -27,7 +27,7 @@ android {
         config {
             keyAlias 'BitPerfect'
             keyPassword 'Bit2015!'
-            storeFile file('../../credentials//Kasnet.jks')
+            storeFile file('../../../credentials/Kasnet.jks')
             storePassword 'Bit2015!'
         }
     }

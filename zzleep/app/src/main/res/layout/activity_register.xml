@@ -22,7 +22,7 @@
 			android:layout_marginTop="20dp"
 			android:gravity="center"
 			android:text="@string/register_title"
-			android:textAppearance="@style/TextAppearance.FontPath"/>
+			android:textAppearance="@style/TextAppearance.FontPath" />
 
 		<android.support.v7.widget.CardView
 			android:layout_width="80dp"
@@ -47,7 +47,7 @@
 			android:gravity="center"
 			android:text="@string/register_perfil_action"/>
 
-		<pe.geekadvice.zzleep.components.InputLabel
+		<com.gowil.zzleep.zzleep.components.InputLabel
 			android:id="@+id/regName"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
 			app:textHint="Nombres"
 			app:textLabel="Nombres:"/>
 
-		<pe.geekadvice.zzleep.components.InputLabel
+		<com.gowil.zzleep.zzleep.components.InputLabel
 			android:id="@+id/regLastName"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
 			app:textHint="Apellidos"
 			app:textLabel="Apellidos:"/>
 
-		<pe.geekadvice.zzleep.components.InputLabel
+		<com.gowil.zzleep.zzleep.components.InputLabel
 			android:id="@+id/regEmail"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
 			app:textHint="E-mail"
 			app:textLabel="E-mail"/>
 
-		<pe.geekadvice.zzleep.components.InputLabel
+		<com.gowil.zzleep.zzleep.components.InputLabel
 			android:id="@+id/regPassword"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

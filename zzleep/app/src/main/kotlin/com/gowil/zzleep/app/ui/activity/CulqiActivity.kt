@@ -4,18 +4,190 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
 import com.gowil.zzleep.R
 import com.gowil.zzleep.app.core.utils.LogUtils
+import com.gowil.zzleep.data.entity.AntifraudDetailsEntity
+import com.gowil.zzleep.data.entity.raw.CulqiChargeRaw
 import com.gowil.zzleep.data.entity.raw.CulqiCreateTokenRaw
+import com.gowil.zzleep.domain.model.CreateOrder
+import com.gowil.zzleep.domain.model.CulqiCharges
 import com.gowil.zzleep.domain.model.CulqiCreateToken
+import com.gowil.zzleep.domain.model.Metadata
 
 import com.gowil.zzleep.view.CulqiView
+import kotlinx.android.synthetic.main.activity_culqi.*
 
 class CulqiActivity: AppCompatActivity(), CulqiView {
+    override fun createOrder(createOrder: CreateOrder) {
+
+    }
+
+    val SUCCESS_CULQI_TOKEN = "token"
+    val SUCCESS_CULQI_CARGO = "cargo"
     val TAG = javaClass.simpleName
+
+    var userid = ""
+    var tokenCode = ""
+    var nombre = ""
+    var precio = ""
+    var userToken = ""
+    var email = ""
+    var id: Int? = null
+
+    var ID_SOURCE = ""
+
+
+    var culqiPresenter = com.gowil.zzleep.presenter.CulqiPresenter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_culqi)
+        getBundle()
+        initUI()
+    }
+
+    fun getBundle(){
+        if (intent.extras != null){
+            id = intent.getIntExtra("id", 0)
+            nombre = intent.getStringExtra("nombre")
+            precio = intent.getStringExtra("precio")
+            userid = intent.getStringExtra("userid")
+            email = intent.getStringExtra("email")
+            userToken = intent.getStringExtra("userToken")
+        }
+    }
+
+    fun initUI(){
+        btnBuyVideoAlarm.text = "S/ $precio"
+        onClickListener()
+        culqiPresenter.attachedView(this)
+
+    }
+
+    fun wsCreateToken(){
+        val raw = CulqiCreateTokenRaw()
+        raw.card_number = eteCardNumber.text.toString()
+        raw.cvv = eteCardCvv.text.toString()
+        raw.expiration_month = eteCardMonth.text.toString()
+        raw.expiration_year = "20${eteCardYear.text.toString()}"
+        raw.email =  email
+        culqiPresenter.createToken(raw)
+    }
+
+    fun chargeCulqi(){
+        val raw = CulqiChargeRaw()
+        LogUtils().v("MONTO CULQI :::", precio)
+        raw.amount = replaceMonto(precio)
+        raw.currency_code = "PEN"
+        raw.email = email
+
+        val metadata = Metadata()
+        metadata.id_users = userid
+        raw.metadata = metadata
+        raw.source_id = ID_SOURCE
+        var antifraud = AntifraudDetailsEntity()
+        antifraud.address = "tienda"
+        antifraud.address_city = "false"
+        antifraud.country_code = "PE"
+        antifraud.first_name = nombre
+        antifraud.last_name = nombre
+        antifraud.phone_number = "123456789"
+        raw.antifraud_details = antifraud
+        culqiPresenter.chargeCulqi(raw)
+
+    }
+
+    fun replaceMonto(montoOld: String): String {
+        val monto: String = montoOld.replace(".", "")
+        return monto
+    }
+
+    fun onClickListener(){
+        btnBuyVideoAlarm.setOnClickListener {
+            if (validateForm()) {
+                wsCreateToken()
+            }
+        }
+    }
+
+    fun validateFormatCard(){
+        eteCardNumber.addTextChangedListener(object : TextWatcher {
+            internal var size = 0
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence, p1: Int, p2: Int, p3: Int) {
+       /*         if (size < s.length) {
+                    when (iviLogoCard.tag) {
+                        tagVisa, tagMasterCard -> {
+                            if (size == 4 || size == 9 || size == 14) {
+                                eteCardNum.append(" ")
+                            }
+                            if (s.length == 19)
+                                eteCardMonth.requestFocus()
+                        }
+                        tagAmex -> {
+                            if (size == 4 || size == 11) {
+                                eteCardNum.append(" ")
+                            }
+                            if (s.length == 17)
+                                eteCardMonth.requestFocus()
+                        }
+                        tagDiners -> {
+                            if (size == 4 || size == 11) {
+                                eteCardNum.append(" ")
+                            }
+                            if (s.length == 16)
+                                eteCardMonth.requestFocus()
+                        }
+                    }
+                }*/
+            }
+        })
+    }
+
+    fun validateForm(): Boolean{
+        return when {
+            eteCardNumber.text.isEmpty() -> {
+                eteCardNumber.error = "Por favor, ingresa número de tarjeta"
+                false
+            }
+            eteCardMonth.text.isEmpty() -> {
+                eteCardMonth.error = "Por favor, ingresa mes"
+                false
+            }
+            eteCardYear.text.isEmpty() -> {
+                eteCardYear.error = "Por favor, ingresa año"
+                false
+            }
+            eteCardCvv.text.isEmpty() -> {
+                eteCardCvv.error = "Por favor, ingresa CVV"
+                false
+            }
+            else -> true
+        }
+    }
 
     override fun createToken(culqiCreateToken: CulqiCreateToken) {
         LogUtils().v(TAG, " TOKEN CREADO " + culqiCreateToken.toString())
+        if (culqiCreateToken.`object`!! == SUCCESS_CULQI_TOKEN){
+            ID_SOURCE = culqiCreateToken.id!!
+            chargeCulqi()
+        } else {
+
+        }
+    }
+
+    override fun chargeCulqi(culqiCharges: CulqiCharges) {
+        LogUtils().v(TAG, " CHARGED CULQI " + culqiCharges.toString())
+
     }
 
     override fun showLoading() {
@@ -32,24 +204,5 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
 
     override fun getContext(): Context {
         return this
-    }
-
-    var CulqiPresenter = com.gowil.zzleep.presenter.CulqiPresenter()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_culqi)
-        initUI()
-    }
-
-    fun initUI(){
-        CulqiPresenter.attachedView(this)
-        val raw = CulqiCreateTokenRaw()
-        raw.card_number = "4111111111111111"
-        raw.cvv = "123"
-        raw.expiration_month = "09"
-        raw.expiration_year = "2020"
-        raw.email = "louislopez.dev@gmail.com"
-        CulqiPresenter.createToken(raw)
     }
 }

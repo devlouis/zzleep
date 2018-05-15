@@ -8,5 +8,5 @@ interface Productsview : BaseView{
     fun getalarmAudio(productsAudio: ProductsAudio)
     fun showLoading()
     fun hideLoading()
-    fun showMessageError(message: String, type: Int?)
+
 }

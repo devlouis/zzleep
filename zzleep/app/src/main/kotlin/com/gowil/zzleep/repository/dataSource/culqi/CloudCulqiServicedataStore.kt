@@ -1,9 +1,15 @@
 package com.gowil.zzleep.repository.dataSource.culqi
 
+import com.google.firebase.auth.FirebaseAuth
 import com.gowil.zzleep.app.core.utils.LogUtils
+import com.gowil.zzleep.data.entity.raw.CreateOrderRaw
+import com.gowil.zzleep.data.entity.raw.CulqiChargeRaw
 import com.gowil.zzleep.data.entity.raw.CulqiCreateTokenRaw
+import com.gowil.zzleep.data.entity.response.CreateOrderResponse
+import com.gowil.zzleep.data.entity.response.CulqiChargesResponse
 import com.gowil.zzleep.data.entity.response.CulqiCreateTokenResponse
 import com.gowil.zzleep.data.rest.ApiClient
+import com.gowil.zzleep.data.store.FirebaseAuthSession
 import com.gowil.zzleep.repository.RepositoryCallBack
 
 import org.json.JSONObject
@@ -15,6 +21,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class CloudCulqiServicedataStore(private val restApi: ApiClient) : CulqiServiceDataStore {
+
 
 
     override fun createToken(raw: CulqiCreateTokenRaw, callBackCulqi: RepositoryCallBack) {
@@ -73,6 +80,88 @@ class CloudCulqiServicedataStore(private val restApi: ApiClient) : CulqiServiceD
                 callBackCulqi.onFailure(t)
             }
         })
+    }
+
+    override fun charges(raw: CulqiChargeRaw, callBackCulqi: RepositoryCallBack) {
+        val call = ApiClient().getCulqiV2Interface(CARGOS)!!.createCharges(raw)
+        call.enqueue(object : Callback<CulqiChargesResponse> {
+            override fun onResponse(call: Call<CulqiChargesResponse>?, response: Response<CulqiChargesResponse>?) {
+                try {
+                    var chargesResponse = CulqiChargesResponse()
+                    if (response!!.code() == 201){
+                        chargesResponse = response!!.body()!!
+                        LogUtils().v(TAG, chargesResponse!!.toString())
+                        callBackCulqi.onSuccess(chargesResponse)
+                    } else {
+                        val responseDataError = response.errorBody()!!.string()
+                        LogUtils().v(TAG, " Error: " + response.code() + ": " + responseDataError)
+
+                        var user_message = ""
+                        var param = ""
+
+                        val json = JSONObject(responseDataError)
+
+                        if (buscarPlabra(responseDataError, "user_message"))
+                            user_message = json.getString("user_message").toString()
+
+                        if (buscarPlabra(responseDataError, "param"))
+                            param = json.getString("param").toString()
+
+                        chargesResponse!!.setError(
+                                json.getString("object").toString(),
+                                json.getString("type").toString(),
+                                json.getString("merchant_message").toString(),
+                                user_message,
+                                param)
+                        callBackCulqi.onSuccess(chargesResponse)
+                    }
+                }catch (e: Exception){
+
+                }
+            }
+
+            override fun onFailure(call: Call<CulqiChargesResponse>?, t: Throwable?) {
+
+            }
+
+        })
+    }
+
+    override fun createOrder(raw: CreateOrderRaw, callBackCulqi: RepositoryCallBack) {
+
+        var user = FirebaseAuth.getInstance().currentUser
+        var idToken = "none"
+        user!!.getIdToken(true)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        idToken = task.result.token!!
+                        val call = ApiClient().getZzleepTokenInterface("",idToken)!!.setOrder(raw)
+                        call.enqueue(object : Callback<CreateOrderResponse> {
+                            override fun onFailure(call: Call<CreateOrderResponse>?, t: Throwable?) {
+                            }
+
+                            override fun onResponse(call: Call<CreateOrderResponse>?, response: Response<CreateOrderResponse>) {
+                                try {
+                                    var createOrderResponse = CreateOrderResponse()
+                                    if (response!!.code() == 200) {
+                                        createOrderResponse = response.body()!!
+                                        callBackCulqi.onSuccess(createOrderResponse)
+                                    } else {
+
+                                    }
+                                }catch (exception: Exception) {
+
+                                }
+
+                            }
+                        })
+
+                    } else {
+
+
+                    }
+                }
+
     }
 
     fun buscarPlabra(string: String, keyword: String): Boolean {
