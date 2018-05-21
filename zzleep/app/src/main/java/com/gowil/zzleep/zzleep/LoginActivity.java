@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -36,6 +39,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
@@ -48,17 +53,25 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.gowil.zzleep.R;
+import com.gowil.zzleep.app.core.BaseAppCompat;
+import com.gowil.zzleep.app.core.utils.LogUtils;
 import com.gowil.zzleep.zzleep.utils.ErrorHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>
+public class LoginActivity extends BaseAppCompat implements LoaderCallbacks<Cursor>
 {
 
 	private static final int REQUEST_READ_CONTACTS = 1;
@@ -94,6 +107,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
+
+		keyHash();
         //FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
@@ -150,6 +165,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         populateAutoComplete();
         facebookConecction();
     }
+
+	public void keyHash(){
+		try {
+			PackageInfo info = getPackageManager().getPackageInfo(
+					"com.gowil.zzleep",
+					PackageManager.GET_SIGNATURES);
+			for (Signature signature : info.signatures) {
+				MessageDigest md = MessageDigest.getInstance("SHA");
+				md.update(signature.toByteArray());
+				new LogUtils().v(" KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			new LogUtils().v(" KeyHash: e",e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			new LogUtils().v(" KeyHash: e ", e.getMessage());
+		}
+	}
 
 	private void populateAutoComplete()
 	{
@@ -394,6 +426,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 	}
 
+	private void verifyExistUser() {
+
+		GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+			@Override
+			public void onCompleted(JSONObject object, GraphResponse response) {
+				JSONObject json = response.getJSONObject();
+				new LogUtils().v(" FACEBOOK", json.toString());
+				try {
+					if (json.has("email")) {
+						final String f_email = json.getString("email");
+						final  String f_name = json.has("name") ? json.getString("name") : "";
+						final  String f_id = json.has("id") ? json.getString("id") : "";
+						final String f_gender = json.has("gender") ? json.getString("gender") : "";
+						final String f_birthday = json.has("birthday") ? json.getString("birthday") : "";
+						final String idFacebook=json.getString("id");
+
+
+					} else {
+						;
+					}
+				} catch (JSONException e) {
+
+				}
+			}
+		});
+		Bundle parameters = new Bundle();
+		parameters.putString("fields", "id,name,first_name,last_name,gender,link,email,picture");
+		request.setParameters(parameters);
+		request.executeAsync();
+	}
+
 	private void facebookConecction(){
 		LoginManager.getInstance().logOut();
         LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>()
@@ -403,7 +466,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onSuccess(LoginResult loginResult)
             {
-                token = loginResult.getAccessToken();
+
+				if (AccessToken.getCurrentAccessToken() != null){
+					verifyExistUser();
+				}
+       /*         token = loginResult.getAccessToken();
                 fbCredential = FacebookAuthProvider.getCredential(token.getToken());
 
                 //pDialog = ProgressDialog.show(getApplicationContext(), "Titulo", "Cargando información", true, false);
@@ -422,7 +489,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 } else {
                     profile = Profile.getCurrentProfile();
                     mAuth.signInWithCredential(fbCredential);
-                }
+                }*/
             }
             /*VACIO*/
             @Override

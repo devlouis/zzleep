@@ -6,9 +6,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import com.gowil.zzleep.R
+import com.gowil.zzleep.app.core.BaseAppCompat
 import com.gowil.zzleep.app.core.utils.LogUtils
 import com.gowil.zzleep.data.entity.AntifraudDetailsEntity
+import com.gowil.zzleep.data.entity.raw.CreateOrderRaw
 import com.gowil.zzleep.data.entity.raw.CulqiChargeRaw
 import com.gowil.zzleep.data.entity.raw.CulqiCreateTokenRaw
 import com.gowil.zzleep.domain.model.CreateOrder
@@ -19,10 +22,7 @@ import com.gowil.zzleep.domain.model.Metadata
 import com.gowil.zzleep.view.CulqiView
 import kotlinx.android.synthetic.main.activity_culqi.*
 
-class CulqiActivity: AppCompatActivity(), CulqiView {
-    override fun createOrder(createOrder: CreateOrder) {
-
-    }
+class CulqiActivity: BaseAppCompat(), CulqiView {
 
     val SUCCESS_CULQI_TOKEN = "token"
     val SUCCESS_CULQI_CARGO = "cargo"
@@ -35,6 +35,7 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
     var userToken = ""
     var email = ""
     var id: Int? = null
+    var productID = "2"
 
     var ID_SOURCE = ""
 
@@ -79,7 +80,8 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
     fun chargeCulqi(){
         val raw = CulqiChargeRaw()
         LogUtils().v("MONTO CULQI :::", precio)
-        raw.amount = replaceMonto(precio)
+        //raw.amount = replaceMonto(precio)
+        raw.amount = replaceMonto("3.00")
         raw.currency_code = "PEN"
         raw.email = email
 
@@ -87,16 +89,25 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
         metadata.id_users = userid
         raw.metadata = metadata
         raw.source_id = ID_SOURCE
-        var antifraud = AntifraudDetailsEntity()
+ /*     var antifraud = AntifraudDetailsEntity()
         antifraud.address = "tienda"
         antifraud.address_city = "false"
         antifraud.country_code = "PE"
         antifraud.first_name = nombre
         antifraud.last_name = nombre
         antifraud.phone_number = "123456789"
-        raw.antifraud_details = antifraud
+        raw.antifraud_details = antifraud*/
         culqiPresenter.chargeCulqi(raw)
 
+    }
+
+    fun wsCreateOrder(ID_CHARGE: String, status: String) {
+        val raw = CreateOrderRaw()
+        raw.id_charge = ID_CHARGE
+        raw.id_product = productID
+        raw.id_status = status
+        raw.total = "3.00"
+        culqiPresenter.createOrden(raw)
     }
 
     fun replaceMonto(montoOld: String): String {
@@ -107,6 +118,8 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
     fun onClickListener(){
         btnBuyVideoAlarm.setOnClickListener {
             if (validateForm()) {
+                hideSoftKeyboard(eteCardNumber)
+                vLoading.visibility = View.VISIBLE
                 wsCreateToken()
             }
         }
@@ -181,14 +194,31 @@ class CulqiActivity: AppCompatActivity(), CulqiView {
             ID_SOURCE = culqiCreateToken.id!!
             chargeCulqi()
         } else {
-
+            vLoading.visibility = View.GONE
         }
     }
 
     override fun chargeCulqi(culqiCharges: CulqiCharges) {
         LogUtils().v(TAG, " CHARGED CULQI " + culqiCharges.toString())
+        LogUtils().v(TAG, " CHARGED CULQI_charge " + culqiCharges.`object`)
+        if (culqiCharges.`object` == "charge"){
+            wsCreateOrder(culqiCharges.id!!, "1")
+        } else {
+            vLoading.visibility = View.GONE
+        }
 
     }
+
+    override fun createOrder(createOrder: CreateOrder) {
+        LogUtils().v(TAG, " ORDEN CREADA " + createOrder.toString())
+        vLoading.visibility = View.GONE
+        if (createOrder.order_id != "") {
+
+        } else {
+
+        }
+    }
+
 
     override fun showLoading() {
 

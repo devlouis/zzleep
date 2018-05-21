@@ -14,40 +14,30 @@ class CloudUsersServicedataStore: UsersServiceDataStore {
     val TAG = " CloudUsers"
 
     override fun setUsers(raw: UserRegisterRaw, repositoryCallBack: RepositoryCallBack) {
-        var user = FirebaseAuth.getInstance().currentUser
-        var idToken = ""
-        user!!.getIdToken(true)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        idToken = task.result.token!!
-                        LogUtils().v(TAG, " getIdToken:: " + idToken!!)
-                        val call = ApiClient().getZzleepTokenInterface("",idToken!!)!!.setUser(raw)
-                        call.enqueue(object : Callback<UserRegisterResponse> {
-                            override fun onFailure(call: Call<UserRegisterResponse>?, t: Throwable?) {
+        val call = ApiClient().getZzleepTokenInterface("","")!!.setUser(raw)
+        call.enqueue(object : Callback<UserRegisterResponse> {
+            override fun onFailure(call: Call<UserRegisterResponse>?, t: Throwable?) {
 
-                            }
+            }
 
-                            override fun onResponse(call: Call<UserRegisterResponse>, response: Response<UserRegisterResponse>) {
-                                try {
-                                    var userRegisterResponse: UserRegisterResponse? = null
-                                    if (response!!.code() == 200){
-                                        userRegisterResponse = response.body()
-                                        LogUtils().v(TAG, userRegisterResponse!!.toString())
-                                        repositoryCallBack.onSuccess(userRegisterResponse)
-                                    }else{
-
-                                    }
-                                }catch (e: Exception){
-
-                                }
-                            }
-                        })
-                        // Send token to your backend via HTTPS
-                        // ...
-                    } else {
-                        // Handle error -> task.getException();
-
+            override fun onResponse(call: Call<UserRegisterResponse>, response: Response<UserRegisterResponse>) {
+                try {
+                    var userRegisterResponse: UserRegisterResponse? = null
+                    if (response!!.code() == 200){
+                        userRegisterResponse = response.body()
+                        LogUtils().v(TAG, userRegisterResponse!!.toString())
+                        if (userRegisterResponse.success == "true"){
+                            repositoryCallBack.onSuccess(userRegisterResponse)
+                        }else{
+                            repositoryCallBack.onFailure(Throwable(userRegisterResponse.msg, null))
+                        }
+                    }else{
+                        repositoryCallBack.onFailure(Throwable(userRegisterResponse!!.msg, null))
                     }
+                }catch (e: Exception){
+                    repositoryCallBack.onFailure(Throwable("", e))
                 }
+            }
+        })
     }
 }

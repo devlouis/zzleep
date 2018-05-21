@@ -10,7 +10,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -25,6 +27,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -77,6 +80,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import com.google.firebase.auth.GetTokenResult;
@@ -185,6 +190,10 @@ public class MainActivity extends FragmentActivity implements
         lv.setAdapter(destinyAdapter);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         gotoLogin();
+
+
+
+
     }
 
     @Override

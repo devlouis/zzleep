@@ -130,7 +130,7 @@ class CloudCulqiServicedataStore(private val restApi: ApiClient) : CulqiServiceD
     override fun createOrder(raw: CreateOrderRaw, callBackCulqi: RepositoryCallBack) {
 
         var user = FirebaseAuth.getInstance().currentUser
-        var idToken = "none"
+        var idToken = ""
         user!!.getIdToken(true)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {

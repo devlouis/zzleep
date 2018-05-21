@@ -38,7 +38,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -96,7 +95,11 @@
             android:theme="@style/AppTheme" />
 
         <activity android:name=".app.ui.activity.CulqiActivity"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.AppCompat.Translucent"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".app.ui.activity.RegisterActivity"
             android:screenOrientation="portrait"/>
 
     </application>

@@ -77,32 +77,29 @@
     <RelativeLayout
         android:id="@+id/viewsContainer"
         style="@style/AppTheme"
+        android:background="#000"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible">
+        <com.google.android.exoplayer2.ui.PlayerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:visibility="gone"
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            />
+
         <ImageButton
             android:id="@+id/btnStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"
             android:padding="0dp"
             android:src="@mipmap/btn_stop" />
-
-        <com.google.android.exoplayer2.ui.PlayerView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:visibility="gone"
-            android:id="@+id/player_view"
-            android:background="@color/cardview_dark_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:keepScreenOn="true"/>
-
-
-
-
     </RelativeLayout>
 
 

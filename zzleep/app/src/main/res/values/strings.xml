@@ -22,11 +22,11 @@
     <string name="hint_email">E-mail o Teléfono</string>
     <string name="hint_password">Password</string>
     <string name="label_jump">Saltar</string>
-    <string name="facebook_app_id">1974034966174524</string>
+    <string name="facebook_app_id">132621524269190</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyBfZX0eFLV9ZMTshcX8FpDUwMZ1V-6o8Mo
     </string>
-    <string name="fb_login_protocol_scheme">fb1974034966174524</string>
+    <string name="fb_login_protocol_scheme">fb132621524269190</string>
 
     <string name="icon_bug">\ue900</string>
     <string name="icon_chevron_down">\ue903</string>

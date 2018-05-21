@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_payment"
@@ -7,14 +7,17 @@
     android:layout_height="match_parent"
     android:background="#9000"
     android:orientation="vertical"
-    android:paddingHorizontal="16dp"
     android:gravity="center"
     tools:context=".zzleep.PaymentActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:layout_margin="16dp"
+        android:padding="20dp"
         android:background="#ffffff">
 
         <android.support.design.widget.TextInputLayout
@@ -124,8 +127,17 @@
             android:id="@+id/btnBuyVideoAlarm"
             style="@style/Button"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="16dp"
             android:text="Pagar $2.5" />
     </LinearLayout>
-</LinearLayout>
+
+    <include
+        android:id="@+id/vLoading"
+        layout="@layout/custom_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</RelativeLayout>

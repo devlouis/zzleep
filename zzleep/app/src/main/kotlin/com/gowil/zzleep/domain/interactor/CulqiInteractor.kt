@@ -66,7 +66,8 @@ class CulqiInteractor(private val serviceRepository: CulqiServiceRepository) {
 
             override fun onRequestSuccess(any: Any, type: Int) {
                 var createOrder = any as CreateOrder
-                onRequestSuccess(createOrder, type)
+                LogUtils().v(TAG, " createOrder - onRequestSuccess " + createOrder.toString())
+                requestCallBackCulqi.onRequestSuccess(createOrder, type)
             }
 
             override fun onRequestFailure(e: Throwable) {

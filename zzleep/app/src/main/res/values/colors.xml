@@ -12,4 +12,7 @@
 	<color name="blackOverlay">#66000000</color>
 	<color name="colorTextInfo">#FF999999</color>
 	<color name="colorTextError">#c73e3e</color>
+	<color name="color_error">#cf2727</color>
+	<color name="new_verder">#55b849</color>
+	<color name="trans_black">#50000000</color>
 </resources>

@@ -29,7 +29,7 @@ class UsersInteractor(val serviceRepository: UsersServiceRepository) {
 
             override fun onRequestFailure(throwable: Throwable, type: Int) {
                 LogUtils().v(TAG, " setUsers-onRequestFailure " + throwable.toString())
-                requestCallBack.onRequestSuccess(throwable, type)
+                requestCallBack.onRequestFailure(throwable, type)
             }
         })
     }

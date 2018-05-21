@@ -15,7 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -78,6 +80,8 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	private PlayerManager player;
 	private ProductsPresenter productsPresenter;
 
+	ImageButton btnStop;
+
 	@Override
 	protected void attachBaseContext(Context newBase)
 	{
@@ -91,6 +95,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 		playerView = findViewById(R.id.player_view);
 		mViewGroup = findViewById(R.id.viewsContainer);
 		vdoView = findViewById(R.id.videoViewRec);
+		btnStop = (ImageButton) findViewById(R.id.btnStop);
 		vdoView.setMediaController(new MediaController(this));
 
 
@@ -128,8 +133,9 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 			mp.stop();
 	}
 
-	private void init()
-	{
+	private void init() {
+		btnStop.setOnClickListener(this);
+
 		player = new PlayerManager(this);
 		spinner = findViewById(R.id.progressBar1);
 		spinner.setVisibility(View.VISIBLE);
@@ -234,6 +240,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 		if (playerView.getVisibility() == View.VISIBLE){
 			playerView.setVisibility(View.GONE);
 			player.stop();
+			btnStop.setVisibility(View.GONE);
 
 		} else {
 			super.onBackPressed();
@@ -290,6 +297,7 @@ public class AlarmsList extends AppCompatActivity implements View.OnClickListene
 	}
     void stopPreview(){
         mViewGroup.setVisibility(View.GONE);
+		player.stop();
         if(vdoView.isPlaying())
         {
             vdoView.stopPlayback();

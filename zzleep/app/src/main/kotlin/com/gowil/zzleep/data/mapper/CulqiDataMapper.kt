@@ -144,10 +144,10 @@ class CulqiDataMapper {
         var createOrder: CreateOrder? = null
         try {
             createOrder = CreateOrder()
-            createOrder.amount = response.data!!.amount
-            createOrder.order_id = response.data!!.order_id
-            createOrder.order_status = response.data!!.order_status
-            createOrder.user_id = response.data!!.user_id
+            createOrder.amount = response.order!!.amount
+            createOrder.order_id = response.order!!.order_id
+            createOrder.order_status = response.order!!.order_status
+            createOrder.user_id = response.order!!.user_id
 
         } catch (e : Exception) {
 

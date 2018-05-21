@@ -17,7 +17,7 @@ class UsersDataRepository(val dataStoreFactory: UsersDataStoreFactory, val mappe
         val serviceRepository = this.dataStoreFactory.create(UsersDataStoreFactory.CLOUD)
         serviceRepository.setUsers(raw, object : RepositoryCallBack {
             override fun onSuccess(any: Any) {
-                val userRegister = mapper.UsersRegisterMapper(any as UserRegisterResponse)
+                var userRegister= mapper.UsersRegisterMapper(any as UserRegisterResponse)
                 LogUtils().v(TAG, userRegister.toString())
                 requestCallBack.onRequestSuccess(userRegister, ConstantsTypeServices().USER_CREATE)
             }

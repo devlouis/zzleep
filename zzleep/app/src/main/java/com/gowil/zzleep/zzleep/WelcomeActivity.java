@@ -3,7 +3,9 @@ package com.gowil.zzleep.zzleep;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -25,9 +28,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.gowil.zzleep.R;
+import com.gowil.zzleep.app.core.BaseAppCompat;
+import com.gowil.zzleep.app.core.utils.LogUtils;
+import com.gowil.zzleep.app.ui.activity.RegisterActivity;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener
+public class WelcomeActivity extends BaseAppCompat implements View.OnClickListener, View.OnFocusChangeListener
 {
 
 	private AppConfig config;
@@ -52,6 +62,8 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
     {
         super.onCreate(savedInstanceState);
         init();
+
+
     }
     public void init()
     {
@@ -139,8 +151,12 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 
         switch (view.getId()) {
             case R.id.btnWelcomeNext:
-                startActivity(new Intent(this, RegisterActivity.class));
-                config.saveUserPhone(inputNumber.getText().toString(), spinnerListAreas.getSelectedItem().toString());
+                new LogUtils().v("welcomeActivity", " btnWelcomeNext ");
+                //startActivity(new Intent(this, RegisterActivity.class));
+                Bundle bundle = new Bundle();
+                bundle.putString("PHONE", inputNumber.getText().toString());
+                nextData(RegisterActivity.class, bundle, true);
+                //config.saveUserPhone(inputNumber.getText().toString(), spinnerListAreas.getSelectedItem().toString());
                 break;
             case R.id.btnWelcomeJump:
                 startAnonimus();

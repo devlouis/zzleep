@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/trans_black">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_default_input"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_margin="42dp">
+            <ProgressBar
+                android:id="@+id/progressBar1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_toStartOf="@+id/tviTitleProgress" />
+
+            <TextView
+                android:id="@+id/tviTitleProgress"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_gravity="left|center"
+                android:paddingLeft="10dp"
+                android:gravity="center_vertical"
+                android:text="Un momento por favor."
+                android:textAppearance="@style/TextAppearance.FontPath" />
+        </LinearLayout>
+
+
+
+</RelativeLayout>
